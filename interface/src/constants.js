@@ -1,0 +1,46 @@
+export const supportedChains = [420, 43113, 80001]
+
+export const chainsDetails = {
+    420: {
+        name: "Optimism",
+        image: "https://docs.axelar.dev/images/chains/optimism.svg",
+        currency: "ETH",
+        network: "",
+        apiKey: "",
+        contract: "0xC4FAbC440e56094C3942f9858BaC8f14C4E98826",
+        destChain: "Optimism",
+        destinationChainSelector: "2664363617261496610",
+        destDomainIdentifier: 420,
+        hyperCoreAddress: "0xCC737a94FecaeC165AbCf12dED095BB13F037685",
+        rpc: "https://endpoints.omniatech.io/v1/op/goerli/public",
+        explorer: "https://goerli-optimism.etherscan.io/tx/",
+    },
+    43113: {
+        name: "Avalance",
+        image: "https://docs.axelar.dev/images/chains/avalanche.svg",
+        currency: "AVAX",
+        network: "",
+        apiKey: "",
+        contract: "0x05606d37bE6e3Cac339311d084EF4C47FCfed77B",
+        destChain: "Avalanche",
+        destinationChainSelector: "14767482510784806043",
+        destDomainIdentifier: 43113,
+        hyperCoreAddress: "0xCC737a94FecaeC165AbCf12dED095BB13F037685",
+        rpc: "https://api.avax-test.network/ext/bc/C/rpc",
+        explorer: "https://testnet.snowtrace.io/tx/",
+    },
+    80001: {
+        name: "Polygon",
+        image: "https://polygonscan.com/images/svg/brands/matic.svg",
+        currency: "MATIC",
+        network: "",
+        apiKey: "",
+        contract: "0xC21339d4fE97Dd9dE5E277dac6df61A16BB80043",
+        destChain: "Polygon",
+        destinationChainSelector: "12532609583862916517",
+        destDomainIdentifier: 80001,
+        hyperCoreAddress: "0xCC737a94FecaeC165AbCf12dED095BB13F037685",
+        rpc: "https://rpc-mumbai.maticvigil.com",
+        explorer: "https://mumbai.polygonscan.com/tx/",
+    }
+}
