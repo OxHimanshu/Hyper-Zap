@@ -1,10 +1,10 @@
 import { useAccount, useNetwork } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useEffect, useState } from 'react';
-import { supportedChains, chainsDetails } from '../constants';
-import TransferDetailsFlap from '../components/TransferDetailsFlap';
+import { supportedBridgeChains, chainsDetails } from '../constants';
+import TransferTokensFlap from '../components/TransferTokensFlap';
 
-function Fuel () {
+function Bridge () {
     
     const {isConnected} = useAccount()
     const {chain} = useNetwork()
@@ -29,7 +29,7 @@ function Fuel () {
                <div onClick={() => setToggleChainList(!toggleChainList)} className='cursor-pointer rounded-lg p-2 hover:bg-gray-800'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
             </div>
             <div className='overflow-y-auto h-4/5'>
-            {supportedChains.filter(chainId => chainId !== chain.id).map(chainId => {
+            {supportedBridgeChains.filter(chainId => chainId !== chain.id).map(chainId => {
                 let chainDetail = chainsDetails[chainId]
                 return (
                     <div onClick={() => {setToChain(chainId); setToggleChainList(!toggleChainList);}} className='cursor-pointer hover:bg-gray-900 flex w-full h-16 items-center px-2 space-x-4'>
@@ -43,7 +43,7 @@ function Fuel () {
         )
     }
 
-    if(!isConnected || !supportedChains.includes(chain.id)) {
+    if(!isConnected || !supportedBridgeChains.includes(chain.id)) {
         return (
             <div className='w-full h-5/6 flex items-center justify-center'>
                 <ConnectButton chainStatus="icon" showBalance={false}/>
@@ -53,14 +53,14 @@ function Fuel () {
         return (
             <div>
                 <div className='fixed'>
-                    <img className='w-52 h-56' src="https://www.hyperlane.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fplanet-4.f8045d1d.webp&w=3840&q=75"/>
-                    <img className='mt-48 w-72 h-88' src="https://www.hyperlane.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fplanet-6.6b0a9897.webp&w=1920&q=75"/>
+                    <img className='mt-48 w-72 h-88' src="https://www.hyperlane.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fplanet-15.3613de9a.webp&w=828&q=75"/>
                 </div>
-                <div className='fixed right-0'>
-                    <img className='mt-72 w-72 h-56' src="https://www.hyperlane.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fplanet-8.187959a4.webp&w=1920&q=75" />
+                <div className='z-10 fixed right-0'>
+                    <img className='w-52 h-56' src="https://www.hyperlane.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fplanet-1.5139f2a1.webp&w=1920&q=75"/>
+                    <img className='mt-72 w-56 h-56' src="https://www.hyperlane.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fplanet-7.52108136.webp&w=1920&q=75" />
                 </div>
-                <div className="text-white flex flex-col w-full h-[700px] items-center">
-                    <div className='h-1/4 flex items-end justify-center text-5xl py-10'>One stop solution for all your gas needs</div>
+                <div className="fixed z-10 text-white flex flex-col w-full h-[700px] items-center">
+                    <div className='h-1/4 flex items-end justify-center text-5xl py-10'>Bridge like a pro using warp routes</div>
                     <div className='relative h-3/4 w-2/4 flex items-center justify-center'>
                         <div>
                             <div className='border p-4 rounded-lg border-white border-4 bg-[#D631B9] space-y-4'>
@@ -74,7 +74,7 @@ function Fuel () {
                                         <div className='w-1/12'><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></div>
                                     </div>
                                 </div>
-                                <TransferDetailsFlap toChain={toChain} chain={chain}/>
+                                <TransferTokensFlap toChain={toChain} chain={chain}/>
                             </div>
                         </div>
                         <Chainselect/>
@@ -88,12 +88,12 @@ function Fuel () {
                         </div>
                     </div>
                 </div>
-                <div className='fixed'>
-                    <svg width="493" height="104" viewBox="0 0 493 104" fill="none" xmlns="http://www.w3.org/2000/svg" class="footer-line-desktop"><path d="M-2.5 11.5C-2.5 11.5 849.5 -42 311.5 112.5" stroke="white" stroke-width="5" opacity="1" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px"></path></svg>
+                <div className='z-0 fixed inset-x-0 bottom-0'>
+                    <svg width="1400" height="252" viewBox="0 0 1440 252" fill="none" xmlns="http://www.w3.org/2000/svg" class="connection-line-2 sm-hidden"><path d="M1466 2C892.94 292.699 474.5 309.5 -0.5 45" stroke="white" stroke-width="4" opacity="1" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px"></path><path d="M1531.5 78.5C966.144 351.535 306.5 263.612 -24 28" stroke="white" stroke-width="8" opacity="1" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px"></path></svg>
                 </div>
             </div>
         )
     }
 }
 
-export default Fuel;
+export default Bridge;

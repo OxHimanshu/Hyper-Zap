@@ -29,6 +29,11 @@ function Liquidity ({chainId}) {
         calculatePrice();
     },[])
 
+    // Create promise that gets resolved in time milliseconds
+    function delay(time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+    }
+
     const calculatePrice = async () => {
         setloading(true)
         const _provider = new ethers.JsonRpcProvider(chainDetail.rpc);
@@ -55,7 +60,8 @@ function Liquidity ({chainId}) {
                     const gasContract = new ethers.Contract(chainDetail.contract, gasABI, provider);
                     const signedContract = gasContract.connect(signer)
                     const txnReceipt = await signedContract.Deposit({value: ethers.parseUnits(addLiquidityAmt.toString(), "ether")});
-                    console.log(txnReceipt.hash);
+                    await delay(3000);
+                    console.log(txnReceipt);
                     alert.success(
                         <div>
                             <div>transaction sent</div>
@@ -92,7 +98,8 @@ function Liquidity ({chainId}) {
                     const gasContract = new ethers.Contract(chainDetail.contract, gasABI, provider);
                     const signedContract = gasContract.connect(signer)
                     const txnReceipt = await signedContract.Withdraw(ethers.parseUnits(removeLiquidityAmt.toString(), "ether"));
-                    console.log(txnReceipt.hash);
+                    await delay(3000);
+                    console.log(txnReceipt);
                     alert.success(
                         <div>
                             <div>transaction sent</div>
@@ -115,7 +122,7 @@ function Liquidity ({chainId}) {
 
     return (
         <div>
-            <div onClick={() => setViewLiquidity(!viewLiquidity)} className='rounded cursor-pointer hover:bg-gray-200 hover:text-[#D631B9] flex w-full h-16 items-center justify-between px-2 space-x-4 py-10'>
+            <div onClick={() => setViewLiquidity(!viewLiquidity)} className={`rounded cursor-pointer ${viewLiquidity ? "bg-gray-200 text-[#D631B9]" : ""} hover:bg-gray-200 hover:text-[#D631B9] flex w-full h-16 items-center justify-between px-2 space-x-4 py-10`}>
                 <div className='flex items-center space-x-2 lg:space-x-4'>
                     <img alt="" src={chainDetail.image} className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10"/>
                     <div className='text-sm md:text-md lg:text-lg xl:text-xl'>{chainDetail.name}</div>
@@ -131,7 +138,7 @@ function Liquidity ({chainId}) {
             {
                 viewLiquidity ?
                 isConnected ?
-                <div className='w-full border rounded bg-gray-200 text-black py-4 space-y-2 px-2 my-2'>
+                <div className='w-full border rounded bg-gray-200 text-black py-4 space-y-2 px-2 my-2 mb-4'>
                     <div className='flex justify-between space-x-4'>
                         <input onChange={(e) => setAddLiquidityAmt(e.target.value)} placeholder='Enter amount to deposit' type="number" className='w-full px-4 rounded-[8px] bg-gray-100 border-slate-300 text-md shadow-sm focux:bg-white focus:outline-none focus:border-2 focus:ring-1 focus:ring-[#E6FB04]' />
                         <button onClick={() => addLiquidity()} className='text-white flex justify-center items-center rounded-lg px-6 bg-[#2362C0] text-sm font-semibold w-4/12'>
@@ -181,19 +188,24 @@ function Liquidity ({chainId}) {
 function Dashboard () {
     
     return (
-        <div className="flex items-center w-full h-5/6 justify-center pt-14">
-            <div className="rounded-lg h-full w-3/6 border border-4 bg-[#D631B9] border-white text-white p-4">
-                <div className='flex items-center justify-center w-full text-lg md:text-xl lg:text-2xl border-b-2 border-white pb-6 pt-2'>Single Token Earn</div>
-                <div className='h-5/6 overflow-y-auto'>
-                    {supportedChains.map(chainId => {
-                        return (
-                            <Liquidity chainId={chainId}/>
-                        )
-                    })}
-                </div>
+        <div className='h-5/6 w-full'>
+            <div className='fixed right-0'>
+                <svg width="200" height="900" viewBox="0 0 1089 1080" fill="none" xmlns="http://www.w3.org/2000/svg" class="sm-hidden"><path d="M190 -7.50003C2433 183 -984.138 669.212 1098.13 906.712" stroke="white" stroke-width="4" opacity="1" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px"></path><path d="M342.5 -9.5C2472.91 164.456 -964.869 688.904 1161.08 887.349" stroke="white" stroke-width="8" opacity="1" pathLength="1" stroke-dashoffset="0px" stroke-dasharray="1px 1px"></path></svg>
             </div>
-            <div className='w-[500px]'>
-                <img className='h-[700px]' src="https://www.hyperlane.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fspaceman.1ba4897b.webp&w=2048&q=75"/>
+            <div className="flex items-center w-full h-full justify-center pt-14">
+                <div className="rounded-lg h-full w-3/6 border border-4 bg-[#D631B9] border-white text-white p-4">
+                    <div className='flex items-center justify-center w-full text-lg md:text-xl lg:text-2xl border-b-2 border-white pb-6 pt-2'>Single Token Earn</div>
+                    <div className='h-5/6 overflow-y-auto mt-2 space-y-4'>
+                        {supportedChains.map(chainId => {
+                            return (
+                                <Liquidity chainId={chainId}/>
+                            )
+                        })}
+                    </div>
+                </div>
+                <div className='z-0 w-[500px]'>
+                    <img className='h-[700px]' src="https://www.hyperlane.xyz/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fspaceman.1ba4897b.webp&w=2048&q=75"/>
+                </div>
             </div>
         </div>
     )

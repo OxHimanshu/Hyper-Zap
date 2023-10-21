@@ -8,12 +8,13 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import {
-  optimismGoerli, avalancheFuji
+  optimismGoerli, avalancheFuji, mantleTestnet, polygonZkEvmTestnet
 } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import Navbar from './components/Navbar';
 import Fuel from './pages/Fuel';
 import Dashboard from './pages/Dashboard';
+import Bridge from './pages/Bridge';
 
 export const polygonMumbai = {
   id: 80_001,
@@ -34,8 +35,43 @@ export const polygonMumbai = {
   },
 } 
 
+export const scrollTestnet = {
+  id: 534_351,
+  name: 'scroll',
+  network: 'Scroll Sepolia',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'ETH',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    public: { http: ['https://scroll-sepolia.blockpi.network/v1/rpc/public'] },
+    default: { http: ['https://scroll-sepolia.blockpi.network/v1/rpc/public'] },
+  },
+  blockExplorers: {
+    etherscan: { name: 'SnowTrace', url: 'https://sepolia.scrollscan.com' },
+    default: { name: 'SnowTrace', url: 'https://sepolia.scrollscan.com' },
+  },
+} 
+
 const { chains, publicClient } = configureChains(
-  [optimismGoerli, avalancheFuji, polygonMumbai],
+  [
+    optimismGoerli, 
+    avalancheFuji, 
+    polygonMumbai, 
+    {
+      ...scrollTestnet,
+      iconUrl: 'https://app.nfts2me.com/assets/chains/scrollv2.svg',
+    },
+    // {
+    //   ...mantleTestnet,
+    //   iconUrl: 'https://miro.medium.com/v2/0*w-6d4VpYha0olTgb.jpg',
+    // },
+    // {
+    //   ...polygonZkEvmTestnet,
+    //   iconUrl: 'https://zkevm.polygonscan.com/images/svg/brands/mainbrand-1.svg?v=23.10.2.0',
+    // },
+  ],
   [
     publicProvider()
   ]
@@ -63,9 +99,7 @@ function App() {
             <Routes>
               <Route path='/' exact element={<Fuel/>}/>
               <Route path='/dashboard' exact element={<Dashboard/>}/>
-              {/* <Route path='/staking' exact element={<Staking/>}/>
-              <Route path='/staking/:chainId' exact element={<Execute/>}/>
-              <Route path='/earn' exact element={<Earn/>}/> */}
+              <Route path='/bridge' exact element={<Bridge/>}/>
             </Routes>
           </Router>
         </div>

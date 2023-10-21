@@ -65,20 +65,23 @@ function TransferDetailsFlap({toChain, chain}) {
             const _receiveAmount = +parseFloat(ethers.formatEther((fromConversionRate * transferAmt)/toConversionRate)).toFixed(4)
             setReceiveAmount(_receiveAmount)
 
-            // let _bridgeFees = (0.3 * (0.35 * 100000000)) / Number(fromConversionRate)
-            let _bridgeFees = 0
-            setBridgeFees(_bridgeFees)
+            let bridgeGasQuote = await _gasContract2.getGasQuote(chainsDetails[toChain].destDomainIdentifier);
+            console.log(bridgeGasQuote)
+            
+            // let _bridgeFees = +parseFloat(ethers.formatEther(bridgeGasQuote)).toFixed(4)
+            // // let _bridgeFees = 0
+            // setBridgeFees(_bridgeFees)
 
-            setPayAmount(Number(_bridgeFees) + Number(val))
+            // setPayAmount(Number(_bridgeFees) + Number(val))
 
-            const _provider3 = new ethers.JsonRpcProvider(chainsDetails[80001].rpc);
-            const _gasContract3 = new ethers.Contract(chainsDetails[80001].contract, gasABI, _provider3);
-            let conversionRate = await _gasContract3.getLatestData();
-            const _sourcePayAmount = (Number(_bridgeFees) + Number(val)) * Number(fromConversionRate) * (1/100000000)
-            const _sourcePayMaticAmount = (Number(_bridgeFees) + Number(val)) * Number(fromConversionRate) * (1/Number(conversionRate))
-            setPayUSDAmount(+parseFloat(_sourcePayAmount).toFixed(4))
-            setPayMaticAmount(+parseFloat(_sourcePayMaticAmount).toFixed(2))
-            setBridgeFeesMatic((0.3 * (0.35 * 100000000)) / Number(conversionRate))
+            // const _provider3 = new ethers.JsonRpcProvider(chainsDetails[80001].rpc);
+            // const _gasContract3 = new ethers.Contract(chainsDetails[80001].contract, gasABI, _provider3);
+            // let conversionRate = await _gasContract3.getLatestData();
+            // const _sourcePayAmount = (Number(_bridgeFees) + Number(val)) * Number(fromConversionRate) * (1/100000000)
+            // const _sourcePayMaticAmount = (Number(_bridgeFees) + Number(val)) * Number(fromConversionRate) * (1/Number(conversionRate))
+            // setPayUSDAmount(+parseFloat(_sourcePayAmount).toFixed(4))
+            // setPayMaticAmount(+parseFloat(_sourcePayMaticAmount).toFixed(2))
+            // setBridgeFeesMatic((0.3 * (0.35 * 100000000)) / Number(conversionRate))
             setloading(false)
         } else {
             setLpFees(0)
@@ -106,12 +109,13 @@ function TransferDetailsFlap({toChain, chain}) {
                     const gasFee = await provider.getGasPrice(); 
                     const gasFeeFormatted = ethers.formatEther(Number(gasFee) * 100000);
                     console.log(ethers.parseUnits((Number(inputAmount) + Number(gasFeeFormatted)).toString(), "ether"))
-                    const txnReceipt = await signedContract.bridgeGas(chainsDetails[toChain].destinationChainSelector, chainsDetails[toChain].contract, {value: ethers.parseUnits(Number(payAmount).toString(), "ether")});
+                    const txnReceipt = await signedContract.bridgeGas(chainsDetails[toChain].destDomainIdentifier, chainsDetails[toChain].contract, {value: ethers.parseUnits(Number(payAmount).toString(), "ether")});
+                    await delay(3000);
                     console.log(txnReceipt.hash);
                     alert.success(
                         <div>
                             <div>transaction sent</div>
-                            <button className='text-xs' onClick={()=> window.open("https://ccip.chain.link/msg/" + txnReceipt.hash, "_blank")}>View on explorer</button>
+                            <button className='text-xs' onClick={()=> window.open("https://explorer.hyperlane.xyz/message/" + txnReceipt.hash, "_blank")}>View on explorer</button>
                         </div>, {
                         timeout: 6000,
                         position: positions.BOTTOM_RIGHT
@@ -222,10 +226,11 @@ function TransferDetailsFlap({toChain, chain}) {
                     const _signer = new ethers.Wallet(process.env.REACT_APP_CIRCLE_CONTRACT, _provider2);
                     const _gasContract = new ethers.Contract(chainsDetails[80001].contract, gasABI, _signer);
                     const txnReceipt = await _gasContract.bridgeGas(chainsDetails[toChain].destChain, chainsDetails[toChain].contract, address, ethers.parseUnits((bridgeFeesMatic).toString(), "ether"), {value: ethers.parseUnits(Number(payMaticAmount).toString(), "ether")});
+                    await delay(3000);
                     alert.success(
                         <div>
                             <div>transaction sent</div>
-                            <button className='text-xs' onClick={()=> window.open("https://ccip.chain.link/msg/" + txnReceipt.hash, "_blank")}>View on explorer</button>
+                            <button className='text-xs' onClick={()=> window.open("https://explorer.hyperlane.xyz/message/" + txnReceipt.hash, "_blank")}>View on explorer</button>
                         </div>, {
                         timeout: 6000,
                         position: positions.BOTTOM_RIGHT
@@ -300,7 +305,7 @@ function TransferDetailsFlap({toChain, chain}) {
                 </div>
                 <div className='flex-col w-full justify-center items-center text-gray-500 text-xs font-semibold'>
                     <div className='flex justify-end'><div className='flex items-center text-gray-400 px-2 '>LP Fee: </div> {loading ? <div className='animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(lpFees).toFixed(8)} {chainsDetails[chain.id].currency} </div>
-                    {/* <div className='flex justify-end'><div className='flex items-center text-gray-400 px-2'>Bridge Fee: </div> {loading ?<div className='border animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(bridgeFees).toFixed(4)} {chainsDetails[chain.id].currency} </div> */}
+                    <div className='flex justify-end'><div className='flex items-center text-gray-400 px-2'>Bridge Fee: </div> {loading ?<div className='border animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(bridgeFees).toFixed(4)} {chainsDetails[chain.id].currency} </div>
                     <div className='flex justify-end '><div className='flex items-center text-gray-400 px-2'>You Pay: </div> {loading ?<div className='animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(payAmount).toFixed(6)} {chainsDetails[chain.id].currency} / {loading ?<div className='animate-pulse w-[30px] h-[14px] bg-gray-300 mx-1 opacity-5'></div> : +parseFloat(payUSDAmount).toFixed(6)} USDC </div>
                     <div className='flex justify-end'><div className='flex items-center text-gray-400 px-2'>You Receive: </div> {loading ?<div className='animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(receiveAmount).toFixed(4)} {chainsDetails[toChain].currency} </div>
                 </div>

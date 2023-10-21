@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.18;
 
-import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 interface IMailbox {
@@ -13,6 +12,25 @@ interface IMailbox {
 
     function process(bytes calldata _metadata, bytes calldata _message)
         external;
+}
+
+interface IInterchainQueryRouter {
+    /**
+     * @param _destinationDomain Domain of destination chain
+     * @param target The address of the contract to query on destination chain.
+     * @param queryData The calldata of the view call to make on the destination
+     * chain.
+     * @param callback Callback function selector on `msg.sender` and optionally
+     * abi-encoded prefix arguments.
+     * @return messageId The ID of the Hyperlane message encoding the query.
+     */
+    function query(
+        uint32 _destinationDomain,
+        address target,
+        bytes calldata queryData,
+        bytes calldata callback
+    ) external returns (bytes32);
+
 }
 
 interface IInterchainGasPaymaster {
@@ -71,7 +89,7 @@ interface IMessageRecipient {
     ) external;
 }
 
-contract GasTransfer  is IMessageRecipient {
+contract GasTransfer is IMessageRecipient {
     // Custom errors to provide more descriptive revert messages.
     error NotEnoughBalance(uint256 currentBalance, uint256 calculatedFees); // Used to make sure contract has enough balance.
 
@@ -94,11 +112,14 @@ contract GasTransfer  is IMessageRecipient {
     uint public totalRewards;
     address immutable mailbox;
     address immutable igp;
-    uint256 public gasAmount = 100000;
+    address immutable iqsRouter;
+    uint256 public gasAmount = 200000;
+    uint public destChainNativeTokenUsdAmount;
 
-    constructor(address _dataFeed, address _mailbox, address _igp) {
+    constructor(address _dataFeed, address _mailbox, address _igp, address _iqsRouter) {
         mailbox = _mailbox;
         igp = _igp;
+        iqsRouter = _iqsRouter;
         dataFeed = AggregatorV3Interface(
             _dataFeed
         );
@@ -110,6 +131,17 @@ contract GasTransfer  is IMessageRecipient {
     modifier onlyMailbox() {
         require(msg.sender == mailbox);
         _;    
+    }
+
+    /// @notice Only allow this function to be called via an IQS callback.
+    modifier onlyCallback() {
+        require(msg.sender == iqsRouter);
+        _;
+    }
+
+    function getUsdBalance() public view returns (uint) {
+        uint nativeAmount = address(this).balance;
+        return (nativeAmount * getLatestData()) / 10e8;
     }
 
     function getLatestData() public view returns (uint) {
@@ -194,12 +226,84 @@ contract GasTransfer  is IMessageRecipient {
 
         uint bridgeAmount = msg.value;
 
-        uint nativeTokenAmount = (bridgeAmount * 95) / 100;
+        uint256 quote = IInterchainGasPaymaster(igp).quoteGasPayment(
+            destinationChainSelector,
+            gasAmount
+        );
+
+        uint nativeTokenAmount = bridgeAmount - quote;
+
+        nativeTokenAmount = (nativeTokenAmount * 95) / 100;
         totalRewards = totalRewards + (bridgeAmount - nativeTokenAmount);
 
         uint nativeTokenUsdAmount = (nativeTokenAmount * getLatestData()) / 10e8;
         bytes memory message = abi.encode(nativeTokenUsdAmount, msg.sender);
-        _sendMessage(destinationChainSelector, receiver, message);
+        _sendMessage(destinationChainSelector, quote, receiver, message);
+    }
+
+    function safeBridgeGas(uint32 destinationChainSelector, address receiver) external payable {
+        if(msg.value == 0 || msg.value <= gasAmount) {
+            revert InvalidArguments();
+        }
+
+        if(destinationChainSelector == 0 || address(0) == receiver) {
+            revert InvalidArguments();
+        }
+
+        uint bridgeAmount = msg.value;
+
+        uint256 quote = IInterchainGasPaymaster(igp).quoteGasPayment(
+            destinationChainSelector,
+            gasAmount
+        );
+
+        uint nativeTokenAmount = bridgeAmount - (quote);
+
+        nativeTokenAmount = (nativeTokenAmount * 95) / 100;
+        totalRewards = totalRewards + (bridgeAmount - nativeTokenAmount);
+        uint nativeTokenUsdAmount = (nativeTokenAmount * getLatestData()) / 10e8; 
+
+        bytes memory _callback = abi.encodePacked(
+            this.callbackInitateBridge.selector, 
+            nativeTokenUsdAmount, 
+            msg.sender,
+            destinationChainSelector,
+            quote,
+            receiver
+        );
+
+        // Dispatch the call. Will result in a view call of ENS.ownerOf() on Ethereum, 
+        // and a callback to this.writeOwner(_label, _owner).
+        bytes32 messageId = IInterchainQueryRouter(iqsRouter).query(
+            destinationChainSelector,
+            receiver,
+            abi.encodePacked(this.getUsdBalance.selector),
+            _callback
+        );
+
+        // // Pay from the contract's balance
+        IInterchainGasPaymaster(igp).payForGas{ value: quote }(
+            messageId, // The ID of the message that was just dispatched
+            destinationChainSelector, // The destination domain of the message
+            80000,
+            address(msg.sender) // refunds are returned to this contract
+        );
+    }
+
+    function callbackInitateBridge(
+        uint nativeTokenUsdAmount, 
+        address sender, 
+        uint32 destinationChainSelector, 
+        uint32 quote, 
+        address receiver,
+        uint destNativeTokenUsdAmount
+    )  onlyCallback() external {
+        if(nativeTokenUsdAmount > destNativeTokenUsdAmount) {
+            revert InsufficientFunds();
+        }
+        destChainNativeTokenUsdAmount = destNativeTokenUsdAmount;
+        // bytes memory message = abi.encode(nativeTokenUsdAmount, sender);
+        // _sendMessage(destinationChainSelector, quote, receiver, message);
     }
 
     function handle(
@@ -211,10 +315,11 @@ contract GasTransfer  is IMessageRecipient {
         uint nativeTokenAmount;
         uint nativeTokenUsdAmount;
         address msgSender = bytes32ToAddress(_sender);
+        address origin;
 
-        (nativeTokenUsdAmount, msgSender) = abi.decode(_body,(uint, address));
+        (nativeTokenUsdAmount, origin) = abi.decode(_body,(uint, address));
         nativeTokenAmount = (nativeTokenUsdAmount / getLatestData()) * 10e8;
-        _unlockToken(nativeTokenAmount, payable(msgSender));
+        _unlockToken(nativeTokenAmount, payable(origin));
 
         emit Received(_origin, msgSender, _body);
     }
@@ -229,6 +334,7 @@ contract GasTransfer  is IMessageRecipient {
     // To send message to multichain contract
     function _sendMessage(
         uint32 domain, 
+        uint256 quote,
         address receiver,
         bytes memory _message
     ) private {
@@ -239,11 +345,6 @@ contract GasTransfer  is IMessageRecipient {
             _message
         );
 
-        // Get the required payment from the IGP.
-        uint256 quote = IInterchainGasPaymaster(igp).quoteGasPayment(
-            domain,
-            gasAmount
-        );
         // Pay from the contract's balance
         IInterchainGasPaymaster(igp).payForGas{ value: quote }(
             messageId, // The ID of the message that was just dispatched
