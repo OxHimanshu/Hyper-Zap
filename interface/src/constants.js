@@ -1,5 +1,4 @@
-export const supportedChains = [420, 43113, 80001]
-
+export const supportedChains = [420, 43113, 80001, 534351, 5001]
 export const supportedBridgeChains = [420, 43113, 80001]
 export const supportBridgeTokens = ["USDC", "USDT", "DAI", "BITCOIN", "LINK"]
 
@@ -26,11 +25,12 @@ export const chainsDetails = {
         name: "Optimism",
         image: "https://docs.axelar.dev/images/chains/optimism.svg",
         currency: "ETH",
-        contract: "0x0102560589C1fDC283fB5aDc591FA5c25BC8699F",
+        contract: "0x5C6a0D5bAaFfcF40B8bAbfa9051FF0f616D7549F",
         destDomainIdentifier: 420,
         rpc: "https://endpoints.omniatech.io/v1/op/goerli/public",
         explorer: "https://goerli-optimism.etherscan.io/tx/",
         isCollateralChain: false,
+        disabled: false,
         tokens: {
             USDC: {
                 token: "0xB06c41426c6235549e0e07DA0d51c39356b60380",
@@ -53,11 +53,12 @@ export const chainsDetails = {
         name: "Avalance",
         image: "https://docs.axelar.dev/images/chains/avalanche.svg",
         currency: "AVAX",
-        contract: "0x66C42bf8697a246D9B39bDB3Dc306C27B5504Ca6",
+        contract: "0x721C6E0be00fDde32Fb7678C5E6D7fa8511647B3",
         destDomainIdentifier: 43113,
         rpc: "https://api.avax-test.network/ext/bc/C/rpc",
         explorer: "https://testnet.snowtrace.io/tx/",
         isCollateralChain: false,
+        disabled: false,
         tokens: {
             USDC: {
                 token: "0xc3E395f67aD5ccF2d0AE6f6EEaf4646664a0665a",
@@ -80,11 +81,12 @@ export const chainsDetails = {
         name: "Polygon",
         image: "https://polygonscan.com/images/svg/brands/matic.svg",
         currency: "MATIC",
-        contract: "0x54F06583850D04063Cc1d7ba04CAd600e6f7c70A",
+        contract: "0x07EcD1188E4DF02754EBA1F098276bBb8683dA23",
         destDomainIdentifier: 80001,
         rpc: "https://rpc-mumbai.maticvigil.com",
         explorer: "https://mumbai.polygonscan.com/tx/",
         isCollateralChain: true,
+        disabled: false,
         tokens: {
             USDC: {
                 token: "0x50C79A4748718D78440c7cd02714527CF643F1A0",
@@ -112,20 +114,22 @@ export const chainsDetails = {
         name: "Scroll",
         image: "https://app.nfts2me.com/assets/chains/scrollv2.svg",
         currency: "ETH",
-        contract: "0xf55F6BCd848F71d5335F6188B7C343107A384787",
+        contract: "0x8e449Cd942C08Fbbc0969A8f88776E8BF67f73Dc",
         destDomainIdentifier: 534353,
         rpc: "https://scroll-sepolia.blockpi.network/v1/rpc/public",
         explorer: "https://sepolia.scrollscan.com/tx/",
-    }
-    // 5001: {
-    //     name: "Mantle",
-    //     image: "https://miro.medium.com/v2/0*w-6d4VpYha0olTgb.jpg",
-    //     currency: "MNT",
-    //     contract: "0x6fEcE031149a5864E77497c5f3F910bCD9C0c5E4",
-    //     destDomainIdentifier: 5001,
-    //     rpc: "https://rpc.testnet.mantle.xyz",
-    //     explorer: "https://explorer.testnet.mantle.xyz/tx/",
-    // },
+        disabled: true,
+    },
+    5001: {
+        name: "Mantle",
+        image: "https://miro.medium.com/v2/0*w-6d4VpYha0olTgb.jpg",
+        currency: "MNT",
+        contract: "0xc3E395f67aD5ccF2d0AE6f6EEaf4646664a0665a",
+        destDomainIdentifier: 5001,
+        rpc: "https://rpc.testnet.mantle.xyz",
+        explorer: "https://explorer.testnet.mantle.xyz/tx/",
+        disabled: true,
+    },
     // 1442: {
     //     name: "Polygon zkEVM",
     //     image: "https://zkevm.polygonscan.com/images/svg/brands/mainbrand-1.svg?v=23.10.2.0",

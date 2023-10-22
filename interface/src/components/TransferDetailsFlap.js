@@ -65,11 +65,15 @@ function TransferDetailsFlap({toChain, chain}) {
             const _receiveAmount = +parseFloat(ethers.formatEther((fromConversionRate * transferAmt)/toConversionRate)).toFixed(6)
             setReceiveAmount(_receiveAmount)
 
-            let bridgeGasQuote = await _gasContract2.getGasQuote(chainsDetails[toChain].destDomainIdentifier);
-            console.log(bridgeGasQuote)
+            let _bridgeFees
+            if(chainsDetails[toChain].disabled) {
+                _bridgeFees = 0
+            } else {
+                let bridgeGasQuote = await _gasContract2.getGasQuote(chainsDetails[toChain].destDomainIdentifier);
+                console.log(bridgeGasQuote)
+                _bridgeFees = +parseFloat(ethers.formatEther(bridgeGasQuote)).toFixed(4)
+            }
             
-            let _bridgeFees = +parseFloat(ethers.formatEther(bridgeGasQuote)).toFixed(4)
-            // let _bridgeFees = 0
             setBridgeFees(_bridgeFees)
 
             setPayAmount(Number(_bridgeFees) + Number(val))
@@ -321,7 +325,16 @@ function TransferDetailsFlap({toChain, chain}) {
                             : <div> Pay In USDC </div>
                         }
                     </button> */}
-                    <button onClick={() => initiate()} className='text-white flex flex-col items-center rounded-lg p-4 px-8 bg-[#2362C0] font-semibold w-[180px]'>
+                    <button onClick={() => { 
+                        if(!chainsDetails[toChain].disabled && !chainsDetails[chain.id].disabled) {
+                            initiate()
+                        } else {
+                            alert.error(<div>route inactive</div>, {
+                                timeout: 6000,
+                                position: positions.BOTTOM_RIGHT
+                            });
+                        }
+                    }} className='text-white flex flex-col items-center rounded-lg p-4 px-8 bg-[#2362C0] font-semibold w-[180px]'>
                         {
                             payInCeloLoading ?
                             <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

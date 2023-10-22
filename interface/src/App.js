@@ -37,7 +37,7 @@ export const polygonMumbai = {
 
 export const scrollTestnet = {
   id: 534_351,
-  name: 'scroll',
+  name: 'Scroll',
   network: 'Scroll Sepolia',
   nativeCurrency: {
     decimals: 18,
@@ -63,10 +63,10 @@ const { chains, publicClient } = configureChains(
       ...scrollTestnet,
       iconUrl: 'https://app.nfts2me.com/assets/chains/scrollv2.svg',
     },
-    // {
-    //   ...mantleTestnet,
-    //   iconUrl: 'https://miro.medium.com/v2/0*w-6d4VpYha0olTgb.jpg',
-    // },
+    {
+      ...mantleTestnet,
+      iconUrl: 'https://miro.medium.com/v2/0*w-6d4VpYha0olTgb.jpg',
+    },
     // {
     //   ...polygonZkEvmTestnet,
     //   iconUrl: 'https://zkevm.polygonscan.com/images/svg/brands/mainbrand-1.svg?v=23.10.2.0',

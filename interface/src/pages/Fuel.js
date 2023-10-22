@@ -83,7 +83,7 @@ function Fuel () {
                         <div className='flex flex-col items-center justify-center py-2 space-y-2'>
                             {toChain !== "" ? <div className='border w-[600px] border-dashed border-gray-200'></div> : ""}
                             <div className='flex border border-white border-4 justify-center w-[695px] rounded-lg py-2 text-white bg-[#D631B9] text-black font-semibold'>
-                                Disclaimer: 20% - 50% of the bridge fees will be refunded to the user automatically
+                                Disclaimer: Routes for Mante and Scroll Testnet chains are inactive at the moment
                             </div>  
                         </div>
                     </div>
