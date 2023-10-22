@@ -1,4 +1,4 @@
-export const supportedChains = [420, 43113, 80001, 534351]
+export const supportedChains = [420, 43113, 80001]
 
 export const supportedBridgeChains = [420, 43113, 80001]
 export const supportBridgeTokens = ["USDC", "USDT", "DAI", "BITCOIN", "LINK"]
@@ -26,7 +26,7 @@ export const chainsDetails = {
         name: "Optimism",
         image: "https://docs.axelar.dev/images/chains/optimism.svg",
         currency: "ETH",
-        contract: "0xC4FAbC440e56094C3942f9858BaC8f14C4E98826",
+        contract: "0xCC92e69873ff04bD43424357F49034651bE9afFD",
         destDomainIdentifier: 420,
         rpc: "https://endpoints.omniatech.io/v1/op/goerli/public",
         explorer: "https://goerli-optimism.etherscan.io/tx/",
@@ -53,7 +53,7 @@ export const chainsDetails = {
         name: "Avalance",
         image: "https://docs.axelar.dev/images/chains/avalanche.svg",
         currency: "AVAX",
-        contract: "0xE6a07611616eFA50E416C21E134F68F5b889320d",
+        contract: "0x89eDB349Ae617F6608AF85F34A4b2E436402BB71",
         destDomainIdentifier: 43113,
         rpc: "https://api.avax-test.network/ext/bc/C/rpc",
         explorer: "https://testnet.snowtrace.io/tx/",
@@ -80,7 +80,7 @@ export const chainsDetails = {
         name: "Polygon",
         image: "https://polygonscan.com/images/svg/brands/matic.svg",
         currency: "MATIC",
-        contract: "0x6fEcE031149a5864E77497c5f3F910bCD9C0c5E4",
+        contract: "0x716f1C2724d7249cdC896B97b3b40aeB3CAb6e50",
         destDomainIdentifier: 80001,
         rpc: "https://rpc-mumbai.maticvigil.com",
         explorer: "https://mumbai.polygonscan.com/tx/",

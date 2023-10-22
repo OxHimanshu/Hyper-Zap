@@ -45,8 +45,8 @@ export const scrollTestnet = {
     symbol: 'ETH',
   },
   rpcUrls: {
-    public: { http: ['https://scroll-sepolia.blockpi.network/v1/rpc/public'] },
-    default: { http: ['https://scroll-sepolia.blockpi.network/v1/rpc/public'] },
+    public: { http: ['https://rpc.ankr.com/scroll_sepolia_testnet'] },
+    default: { http: ['https://rpc.ankr.com/scroll_sepolia_testnet'] },
   },
   blockExplorers: {
     etherscan: { name: 'SnowTrace', url: 'https://sepolia.scrollscan.com' },

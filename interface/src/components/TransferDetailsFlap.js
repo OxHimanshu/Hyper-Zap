@@ -62,26 +62,26 @@ function TransferDetailsFlap({toChain, chain}) {
             let [transferAmt, lpFee] = await _gasContract2.getFee(ethers.parseUnits(val.toString(), "ether"));
             setLpFees(ethers.formatEther(lpFee));
 
-            const _receiveAmount = +parseFloat(ethers.formatEther((fromConversionRate * transferAmt)/toConversionRate)).toFixed(4)
+            const _receiveAmount = +parseFloat(ethers.formatEther((fromConversionRate * transferAmt)/toConversionRate)).toFixed(6)
             setReceiveAmount(_receiveAmount)
 
             let bridgeGasQuote = await _gasContract2.getGasQuote(chainsDetails[toChain].destDomainIdentifier);
             console.log(bridgeGasQuote)
             
-            // let _bridgeFees = +parseFloat(ethers.formatEther(bridgeGasQuote)).toFixed(4)
-            // // let _bridgeFees = 0
-            // setBridgeFees(_bridgeFees)
+            let _bridgeFees = +parseFloat(ethers.formatEther(bridgeGasQuote)).toFixed(4)
+            // let _bridgeFees = 0
+            setBridgeFees(_bridgeFees)
 
-            // setPayAmount(Number(_bridgeFees) + Number(val))
+            setPayAmount(Number(_bridgeFees) + Number(val))
 
-            // const _provider3 = new ethers.JsonRpcProvider(chainsDetails[80001].rpc);
-            // const _gasContract3 = new ethers.Contract(chainsDetails[80001].contract, gasABI, _provider3);
-            // let conversionRate = await _gasContract3.getLatestData();
-            // const _sourcePayAmount = (Number(_bridgeFees) + Number(val)) * Number(fromConversionRate) * (1/100000000)
-            // const _sourcePayMaticAmount = (Number(_bridgeFees) + Number(val)) * Number(fromConversionRate) * (1/Number(conversionRate))
-            // setPayUSDAmount(+parseFloat(_sourcePayAmount).toFixed(4))
-            // setPayMaticAmount(+parseFloat(_sourcePayMaticAmount).toFixed(2))
-            // setBridgeFeesMatic((0.3 * (0.35 * 100000000)) / Number(conversionRate))
+            const _provider3 = new ethers.JsonRpcProvider(chainsDetails[80001].rpc);
+            const _gasContract3 = new ethers.Contract(chainsDetails[80001].contract, gasABI, _provider3);
+            let conversionRate = await _gasContract3.getLatestData();
+            const _sourcePayAmount = (Number(_bridgeFees) + Number(val)) * Number(fromConversionRate) * (1/100000000)
+            const _sourcePayMaticAmount = (Number(_bridgeFees) + Number(val)) * Number(fromConversionRate) * (1/Number(conversionRate))
+            setPayUSDAmount(+parseFloat(_sourcePayAmount).toFixed(4))
+            setPayMaticAmount(+parseFloat(_sourcePayMaticAmount).toFixed(2))
+            setBridgeFeesMatic((0.3 * (0.35 * 100000000)) / Number(conversionRate))
             setloading(false)
         } else {
             setLpFees(0)
@@ -307,7 +307,7 @@ function TransferDetailsFlap({toChain, chain}) {
                     <div className='flex justify-end'><div className='flex items-center text-gray-400 px-2 '>LP Fee: </div> {loading ? <div className='animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(lpFees).toFixed(8)} {chainsDetails[chain.id].currency} </div>
                     <div className='flex justify-end'><div className='flex items-center text-gray-400 px-2'>Bridge Fee: </div> {loading ?<div className='border animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(bridgeFees).toFixed(4)} {chainsDetails[chain.id].currency} </div>
                     <div className='flex justify-end '><div className='flex items-center text-gray-400 px-2'>You Pay: </div> {loading ?<div className='animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(payAmount).toFixed(6)} {chainsDetails[chain.id].currency} / {loading ?<div className='animate-pulse w-[30px] h-[14px] bg-gray-300 mx-1 opacity-5'></div> : +parseFloat(payUSDAmount).toFixed(6)} USDC </div>
-                    <div className='flex justify-end'><div className='flex items-center text-gray-400 px-2'>You Receive: </div> {loading ?<div className='animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(receiveAmount).toFixed(4)} {chainsDetails[toChain].currency} </div>
+                    <div className='flex justify-end'><div className='flex items-center text-gray-400 px-2'>You Receive: </div> {loading ?<div className='animate-pulse w-[30px] h-[14px] bg-gray-300 mr-1 opacity-5'></div> : +parseFloat(receiveAmount).toFixed(6)} {chainsDetails[toChain].currency} </div>
                 </div>
                 <div className='flex w-full justify-center space-x-24'>
                     {/* <button onClick={() => initiateCircle()} className='flex flex-col items-center rounded-lg p-4 px-8 bg-[#E6FB04] font-semibold w-[180px]'>

@@ -5,6 +5,9 @@ import { chainsDetails, supportBridgeTokens, tokenDetails } from '../constants';
 import { ethers } from "ethers";
 import { useAlert, positions } from 'react-alert';
 import gasABI from "./../gasABI.json";
+import erc20TokenABI from './../erc20TokenABI.json';
+import hyperc20collateralABI from './../hyperc20collateralABI.json';
+import hyperc20ABI from './../hyperc20ABI.json';
 import { QRCode } from "react-qr-code";
 import { Circle, CircleEnvironments, PaymentIntentCreationRequest } from "@circle-fin/circle-sdk";
 import { ToastContainer, toast } from 'react-toastify';
@@ -16,7 +19,7 @@ function TransferTokensFlap({toChain, chain}) {
     const { data: signer } = useWalletClient();
     const provider = usePublicClient();
 
-    const [tokenBalance, setTokenBalance] = useState(100000)
+    const [tokenBalance, setTokenBalance] = useState(0)
     const [tokenBalanceLoading, setTokenBalanceLoading] = useState(false)
     const [showLeftToken, setShowLeftToken] = useState(false)
     const [showRightToken, setShowRightToken] = useState(false)
@@ -33,29 +36,36 @@ function TransferTokensFlap({toChain, chain}) {
         position: toast.POSITION.BOTTOM_LEFT
     });
 
-    useEffect(() => {
+    const getBalances = async () => {
         setTokenBalanceLoading(true)
-
+        const _provider1 = new ethers.JsonRpcProvider(chainsDetails[chain.id].rpc);
         if(chainsDetails[chain.id].isCollateralChain) {
-
+            const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, erc20TokenABI, _provider1);
+            let toConversionRate = await erc20Token.balanceOf(address);
+            console.log(toConversionRate)
+            setTokenBalance(ethers.formatEther(toConversionRate))
         } else {
-
+            const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, hyperc20ABI, _provider1);
+            let toConversionRate = await erc20Token.balanceOf(address);
+            console.log(toConversionRate)
+            setTokenBalance(ethers.formatEther(toConversionRate))
         }
-
-        // chainsDetails[chain.id].tokens[selectedToken].token
-
         setTokenBalanceLoading(false)
+      };
+
+    useEffect(() => {
+        getBalances();
     }, [selectedToken])
 
     useEffect(() => {
-        setTokenBalanceLoading(true)
-        if(chainsDetails[chain.id].isCollateralChain) {
 
-        } else {
-
-        }
-        setTokenBalanceLoading(false)
+        getBalances();
     }, [])
+
+    useEffect(() => {
+        
+        getBalances();
+    }, [chain.id])
 
     const { data } = useBalance({
         address:address
@@ -71,14 +81,47 @@ function TransferTokensFlap({toChain, chain}) {
         }
     }
 
-    const initiate = async () => {
+    const initiateTokenTransfer = async () => {
         setInitiateButtonLoading(true)
-        if(inputAmount > 0) {
-            const _provider = new ethers.JsonRpcProvider(chainsDetails[toChain].rpc);
-            let contractBalance = ethers.formatEther(await _provider.getBalance(chainsDetails[toChain].contract));
+        if(inputAmount > 0 && inputAmount <= tokenBalance) {
+            const _provider = new ethers.JsonRpcProvider(chainsDetails[chain.id].rpc);
+            let allowance = 0
+            if(chainsDetails[chain.id].isCollateralChain) {
+                const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, erc20TokenABI, _provider);
+                allowance = +parseFloat(ethers.formatEther(await erc20Token.allowance(address, chainsDetails[chain.id].tokens[selectedToken].collateral))).toFixed(6);
+            }
+            else {
+                const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, hyperc20ABI, _provider);
+                allowance = +parseFloat(ethers.formatEther(await erc20Token.allowance(address, chainsDetails[chain.id].tokens[selectedToken].token))).toFixed(6);
+            }
             
-            if(contractBalance >= receiveAmount) {
+            if(allowance >= inputAmount) {
                 try {
+                    const gasContract = new ethers.Contract(chainsDetails[chain.id].contract, gasABI, _provider);
+        
+                    let bridgeGasQuote = await gasContract.getGasQuote(chainsDetails[toChain].destDomainIdentifier);
+                    console.log(bridgeGasQuote)
+
+                    let bytesAddress = await gasContract.addressToBytes32(address)
+                    console.log(bytesAddress)
+                    let txnReceipt;
+                    if(chainsDetails[chain.id].isCollateralChain) {
+                        const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].collateral, hyperc20collateralABI, signer);
+                        txnReceipt = await erc20Token.transferRemote(chainsDetails[toChain].destDomainIdentifier, bytesAddress, ethers.parseUnits(inputAmount, "ether"), {value: bridgeGasQuote})
+                    }
+                    else {
+                        const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, hyperc20ABI, signer);
+                        txnReceipt = await erc20Token.transferRemote(chainsDetails[toChain].destDomainIdentifier, bytesAddress, ethers.parseUnits(inputAmount, "ether"), {value: bridgeGasQuote})
+                    }
+
+                    // alert.success(
+                    //     <div>
+                    //         <div>transaction sent</div>
+                    //         <button className='text-xs' onClick={()=> window.open("https://explorer.hyperlane.xyz/message/" + txnReceipt.hash, "_blank")}>View on explorer</button>
+                    //     </div>, {
+                    //     timeout: 6000,
+                    //     position: positions.BOTTOM_RIGHT
+                    // });
                     // const gasContract = new ethers.Contract(chainsDetails[chain.id].contract, gasABI, provider);
                     // const signedContract = gasContract.connect(signer)
 
@@ -88,14 +131,14 @@ function TransferTokensFlap({toChain, chain}) {
                     // const txnReceipt = await signedContract.bridgeGas(chainsDetails[toChain].destDomainIdentifier, chainsDetails[toChain].contract, {value: ethers.parseUnits(Number(payAmount).toString(), "ether")});
                     // await delay(3000);
                     // console.log(txnReceipt.hash);
-                    // alert.success(
-                    //     <div>
-                    //         <div>transaction sent</div>
-                    //         <button className='text-xs' onClick={()=> window.open("https://explorer.hyperlane.xyz/message/" + txnReceipt.hash, "_blank")}>View on explorer</button>
-                    //     </div>, {
-                    //     timeout: 6000,
-                    //     position: positions.BOTTOM_RIGHT
-                    // });
+                    alert.success(
+                        <div>
+                            <div>transaction sent</div>
+                            <button className='text-xs' onClick={()=> window.open("https://explorer.hyperlane.xyz/message/" + txnReceipt.hash, "_blank")}>View on explorer</button>
+                        </div>, {
+                        timeout: 6000,
+                        position: positions.BOTTOM_RIGHT
+                    });
                 } catch(e) {
                     alert.error(<div>something went wrong</div>, {
                         timeout: 6000,
@@ -103,11 +146,28 @@ function TransferTokensFlap({toChain, chain}) {
                     });
                 }
             } else {
-                alert.error(<div>insufficient liquidity on destination chain</div>, {
+                let txnReceipt;
+                if(chainsDetails[chain.id].isCollateralChain) {
+                    const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, erc20TokenABI, signer);
+                    txnReceipt = await erc20Token.approve(chainsDetails[chain.id].tokens[selectedToken].collateral, ethers.parseUnits(inputAmount, "ether"))
+                } else {
+                    const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, hyperc20ABI, signer);
+                    txnReceipt = await erc20Token.approve(chainsDetails[chain.id].tokens[selectedToken].token, ethers.parseUnits(inputAmount, "ether"))
+                }
+                alert.success(
+                    <div>
+                        <div>transaction sent</div>
+                        <button className='text-xs' onClick={()=> window.open(chainsDetails[chain.id].explorer + txnReceipt.hash, "_blank")}>View on explorer</button>
+                    </div>, {
                     timeout: 6000,
                     position: positions.BOTTOM_RIGHT
                 });
             }
+        } else {
+            alert.error(<div>invalid input</div>, {
+                timeout: 6000,
+                position: positions.BOTTOM_RIGHT
+            });
         }
         setInitiateButtonLoading(false)
     }
@@ -187,7 +247,7 @@ function TransferTokensFlap({toChain, chain}) {
                     </div>
                 </div>
                 <div className='flex w-full justify-center space-x-24'>
-                    <button onClick={() => initiate()} className='text-white flex flex-col items-center rounded-lg p-4 px-8 bg-[#2362C0] font-semibold w-[180px]'>
+                    <button onClick={() => initiateTokenTransfer()} className='text-white flex flex-col items-center rounded-lg p-4 px-8 bg-[#2362C0] font-semibold w-[180px]'>
                         {
                             initiateButtonLoading ?
                             <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
