@@ -1,0 +1,21 @@
+type Received @entity(immutable: true) {
+  id: Bytes!
+  origin: BigInt! # uint32
+  sender: Bytes! # address
+  body: Bytes! # bytes
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Sent @entity(immutable: true) {
+  id: Bytes!
+  messageId: Bytes! # bytes32
+  destinationChainSelector: BigInt! # uint32
+  receiver: Bytes! # address
+  fees: BigInt! # uint256
+  message: Bytes! # bytes
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
