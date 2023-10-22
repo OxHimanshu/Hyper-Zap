@@ -27,6 +27,7 @@ export function createReceivedEvent(
 export function createSentEvent(
   messageId: Bytes,
   destinationChainSelector: BigInt,
+  sourceChainSelector: BigInt,
   receiver: Address,
   fees: BigInt,
   message: Bytes
@@ -45,6 +46,12 @@ export function createSentEvent(
     new ethereum.EventParam(
       "destinationChainSelector",
       ethereum.Value.fromUnsignedBigInt(destinationChainSelector)
+    )
+  )
+  sentEvent.parameters.push(
+    new ethereum.EventParam(
+      "sourceChainSelector",
+      ethereum.Value.fromUnsignedBigInt(sourceChainSelector)
     )
   )
   sentEvent.parameters.push(

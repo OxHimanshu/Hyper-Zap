@@ -12,6 +12,7 @@ type Sent @entity(immutable: true) {
   id: Bytes!
   messageId: Bytes! # bytes32
   destinationChainSelector: BigInt! # uint32
+  sourceChainSelector: BigInt! # uint32
   receiver: Bytes! # address
   fees: BigInt! # uint256
   message: Bytes! # bytes

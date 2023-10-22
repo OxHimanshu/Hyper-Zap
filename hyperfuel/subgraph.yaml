@@ -22,6 +22,6 @@ dataSources:
       eventHandlers:
         - event: Received(uint32,address,bytes)
           handler: handleReceived
-        - event: Sent(bytes32,indexed uint32,address,uint256,bytes)
+        - event: Sent(bytes32,indexed uint32,uint32,address,uint256,bytes)
           handler: handleSent
       file: ./src/gas-transfer.ts

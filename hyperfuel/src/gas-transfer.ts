@@ -25,6 +25,7 @@ export function handleSent(event: SentEvent): void {
   )
   entity.messageId = event.params.messageId
   entity.destinationChainSelector = event.params.destinationChainSelector
+  entity.sourceChainSelector = event.params.sourceChainSelector
   entity.receiver = event.params.receiver
   entity.fees = event.params.fees
   entity.message = event.params.message
