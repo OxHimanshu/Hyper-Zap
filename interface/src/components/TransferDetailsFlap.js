@@ -114,8 +114,6 @@ function TransferDetailsFlap({toChain, chain}) {
                     const gasFeeFormatted = ethers.formatEther(Number(gasFee) * 100000);
                     console.log(ethers.parseUnits((Number(inputAmount) + Number(gasFeeFormatted)).toString(), "ether"))
                     const txnReceipt = await signedContract.bridgeGas(chainsDetails[toChain].destDomainIdentifier, chainsDetails[toChain].contract, {value: ethers.parseUnits(Number(payAmount).toString(), "ether")});
-                    await txnReceipt.wait()
-                    await delay(3000);
                     console.log(txnReceipt.hash);
                     alert.success(
                         <div>
@@ -231,7 +229,6 @@ function TransferDetailsFlap({toChain, chain}) {
                     const _signer = new ethers.Wallet(process.env.REACT_APP_CIRCLE_CONTRACT, _provider2);
                     const _gasContract = new ethers.Contract(chainsDetails[80001].contract, gasABI, _signer);
                     const txnReceipt = await _gasContract.bridgeGas(chainsDetails[toChain].destChain, chainsDetails[toChain].contract, address, ethers.parseUnits((bridgeFeesMatic).toString(), "ether"), {value: ethers.parseUnits(Number(payMaticAmount).toString(), "ether")});
-                    await delay(3000);
                     alert.success(
                         <div>
                             <div>transaction sent</div>

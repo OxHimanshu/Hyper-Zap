@@ -60,9 +60,7 @@ function Liquidity ({chainId}) {
                     const gasContract = new ethers.Contract(chainDetail.contract, gasABI, provider);
                     const signedContract = gasContract.connect(signer)
                     const txnReceipt = await signedContract.Deposit({value: ethers.parseUnits(addLiquidityAmt.toString(), "ether")});
-                    await delay(3000);
                     console.log(txnReceipt);
-                    await txnReceipt.wait()
                     alert.success(
                         <div>
                             <div>transaction sent</div>
@@ -99,7 +97,6 @@ function Liquidity ({chainId}) {
                     const gasContract = new ethers.Contract(chainDetail.contract, gasABI, provider);
                     const signedContract = gasContract.connect(signer)
                     const txnReceipt = await signedContract.Withdraw(ethers.parseUnits(removeLiquidityAmt.toString(), "ether"));
-                    await delay(3000);
                     console.log(txnReceipt);
                     alert.success(
                         <div>
