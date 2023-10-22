@@ -6,16 +6,15 @@ dataSources:
     name: GasTransfer
     network: mumbai
     source:
-      address: "0x7CD481E39643Fbd3a0Effb076Fc2be56f3E4F7D9"
       abi: GasTransfer
+      address: "0x54F06583850D04063Cc1d7ba04CAd600e6f7c70A"
       startBlock: 41492639
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Received
-        - Sent
+        - NativeTransfer
       abis:
         - name: GasTransfer
           file: ./abis/GasTransfer.json

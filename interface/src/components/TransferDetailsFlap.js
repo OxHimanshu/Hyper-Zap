@@ -110,6 +110,7 @@ function TransferDetailsFlap({toChain, chain}) {
                     const gasFeeFormatted = ethers.formatEther(Number(gasFee) * 100000);
                     console.log(ethers.parseUnits((Number(inputAmount) + Number(gasFeeFormatted)).toString(), "ether"))
                     const txnReceipt = await signedContract.bridgeGas(chainsDetails[toChain].destDomainIdentifier, chainsDetails[toChain].contract, {value: ethers.parseUnits(Number(payAmount).toString(), "ether")});
+                    await txnReceipt.wait()
                     await delay(3000);
                     console.log(txnReceipt.hash);
                     alert.success(

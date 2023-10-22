@@ -2,16 +2,17 @@ import {
   Received as ReceivedEvent,
   Sent as SentEvent
 } from "../generated/GasTransfer/GasTransfer"
-import { Received, Sent } from "../generated/schema"
+import { NativeTransfer } from "../generated/schema"
 
 export function handleReceived(event: ReceivedEvent): void {
-  let entity = new Received(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+  let entity = new NativeTransfer(
+    event.params.body
   )
-  entity.origin = event.params.origin
+  
+  entity.sourceChain = event.params.origin
+  entity.receiver = event.params.sender
   entity.sender = event.params.sender
-  entity.body = event.params.body
-
+  entity.status = "RECEIVED"
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash
@@ -20,15 +21,17 @@ export function handleReceived(event: ReceivedEvent): void {
 }
 
 export function handleSent(event: SentEvent): void {
-  let entity = new Sent(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+  let entity = new NativeTransfer(
+    event.params.message
   )
+
   entity.messageId = event.params.messageId
-  entity.destinationChainSelector = event.params.destinationChainSelector
-  entity.sourceChainSelector = event.params.sourceChainSelector
+  entity.destinationChain = event.params.destinationChainSelector
+  entity.sourceChain = event.params.sourceChainSelector
   entity.receiver = event.params.receiver
+  entity.sender = event.params.receiver
   entity.fees = event.params.fees
-  entity.message = event.params.message
+  entity.status = "SENT"
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp

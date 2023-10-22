@@ -1,0 +1,26 @@
+specVersion: 0.0.5
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: GasTransfer
+    network: mumbai
+    source:
+      abi: GasTransfer
+      address: "0x54F06583850D04063Cc1d7ba04CAd600e6f7c70A"
+      startBlock: 41492639
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - NativeTransfer
+      abis:
+        - name: GasTransfer
+          file: GasTransfer/abis/GasTransfer.json
+      eventHandlers:
+        - event: Received(uint32,address,bytes)
+          handler: handleReceived
+        - event: Sent(bytes32,indexed uint32,uint32,address,uint256,bytes)
+          handler: handleSent
+      file: GasTransfer/GasTransfer.wasm

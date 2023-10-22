@@ -62,6 +62,7 @@ function Liquidity ({chainId}) {
                     const txnReceipt = await signedContract.Deposit({value: ethers.parseUnits(addLiquidityAmt.toString(), "ether")});
                     await delay(3000);
                     console.log(txnReceipt);
+                    await txnReceipt.wait()
                     alert.success(
                         <div>
                             <div>transaction sent</div>
