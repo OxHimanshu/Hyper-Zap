@@ -65,8 +65,8 @@ function TransferDetailsFlap({toChain, chain}) {
             const _receiveAmount = +parseFloat(ethers.formatEther((fromConversionRate * transferAmt)/toConversionRate)).toFixed(6)
             setReceiveAmount(_receiveAmount)
 
-            let _bridgeFees
-            if(chainsDetails[toChain].disabled) {
+            let _bridgeFees = 0
+            if(chainsDetails[toChain].disabled || chainsDetails[chain.id].disabled) {
                 _bridgeFees = 0
             } else {
                 let bridgeGasQuote = await _gasContract2.getGasQuote(chainsDetails[toChain].destDomainIdentifier);
@@ -114,7 +114,7 @@ function TransferDetailsFlap({toChain, chain}) {
                     const gasFeeFormatted = ethers.formatEther(Number(gasFee) * 100000);
                     console.log(ethers.parseUnits((Number(inputAmount) + Number(gasFeeFormatted)).toString(), "ether"))
                     const txnReceipt = await signedContract.bridgeGas(chainsDetails[toChain].destDomainIdentifier, chainsDetails[toChain].contract, {value: ethers.parseUnits(Number(payAmount).toString(), "ether")});
-                    console.log(txnReceipt.hash);
+                    console.log(txnReceipt);
                     alert.success(
                         <div>
                             <div>transaction sent</div>

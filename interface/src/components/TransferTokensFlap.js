@@ -114,23 +114,6 @@ function TransferTokensFlap({toChain, chain}) {
                         txnReceipt = await erc20Token.transferRemote(chainsDetails[toChain].destDomainIdentifier, bytesAddress, ethers.parseUnits(inputAmount, "ether"), {value: bridgeGasQuote})
                     }
 
-                    // alert.success(
-                    //     <div>
-                    //         <div>transaction sent</div>
-                    //         <button className='text-xs' onClick={()=> window.open("https://explorer.hyperlane.xyz/message/" + txnReceipt.hash, "_blank")}>View on explorer</button>
-                    //     </div>, {
-                    //     timeout: 6000,
-                    //     position: positions.BOTTOM_RIGHT
-                    // });
-                    // const gasContract = new ethers.Contract(chainsDetails[chain.id].contract, gasABI, provider);
-                    // const signedContract = gasContract.connect(signer)
-
-                    // const gasFee = await provider.getGasPrice(); 
-                    // const gasFeeFormatted = ethers.formatEther(Number(gasFee) * 100000);
-                    // console.log(ethers.parseUnits((Number(inputAmount) + Number(gasFeeFormatted)).toString(), "ether"))
-                    // const txnReceipt = await signedContract.bridgeGas(chainsDetails[toChain].destDomainIdentifier, chainsDetails[toChain].contract, {value: ethers.parseUnits(Number(payAmount).toString(), "ether")});
-                    // await delay(3000);
-                    // console.log(txnReceipt.hash);
                     alert.success(
                         <div>
                             <div>transaction sent</div>
