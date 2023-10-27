@@ -83,8 +83,21 @@ function TransferTokensFlap({toChain, chain}) {
 
     const initiateTokenTransfer = async () => {
         setInitiateButtonLoading(true)
-        if(inputAmount > 0 && inputAmount <= tokenBalance) {
-            const _provider = new ethers.JsonRpcProvider(chainsDetails[chain.id].rpc);
+        let localTokenBalance = 0
+        const _provider = new ethers.JsonRpcProvider(chainsDetails[chain.id].rpc);
+        if(chainsDetails[chain.id].isCollateralChain) {
+            const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, erc20TokenABI, _provider);
+            let toConversionRate = await erc20Token.balanceOf(address);
+            localTokenBalance = +parseFloat(ethers.formatEther(toConversionRate)).toFixed(4)
+        } else {
+            const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, hyperc20ABI, _provider);
+            let toConversionRate = await erc20Token.balanceOf(address);
+            localTokenBalance = +parseFloat(ethers.formatEther(toConversionRate)).toFixed(4)
+        }
+        console.log(inputAmount)
+        console.log(localTokenBalance)
+        console.log(inputAmount <= localTokenBalance)
+        if(inputAmount > 0 && inputAmount <= localTokenBalance) {
             let allowance = 0
             if(chainsDetails[chain.id].isCollateralChain) {
                 const erc20Token = new ethers.Contract(chainsDetails[chain.id].tokens[selectedToken].token, erc20TokenABI, _provider);

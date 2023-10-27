@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: GasTransfer
-    network: mumbai
+    network: optimism-goerli
     source:
       abi: GasTransfer
-      address: "0x54F06583850D04063Cc1d7ba04CAd600e6f7c70A"
-      startBlock: 41492639
+      address: "0x0102560589C1fDC283fB5aDc591FA5c25BC8699F"
+      startBlock: 16260510
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

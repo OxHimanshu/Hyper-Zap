@@ -1,7 +1,7 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "./AggregatorV3Interface.sol";
 
 interface IMailbox {
     function dispatch(
@@ -97,6 +97,7 @@ contract GasTransfer is IMessageRecipient {
     event Sent(
         bytes32 messageId,
         uint32 indexed destinationChainSelector, // The chain selector of the destination chain.
+        uint32 sourceChainSelector,
         address receiver, // The address of the receiver on the destination chain.
         uint256 fees, // The fees paid for sending the CCIP message.
         bytes message
@@ -115,14 +116,16 @@ contract GasTransfer is IMessageRecipient {
     address immutable iqsRouter;
     uint256 public gasAmount = 200000;
     uint public destChainNativeTokenUsdAmount;
+    uint32 public immutable sourceChainSelector;
 
-    constructor(address _dataFeed, address _mailbox, address _igp, address _iqsRouter) {
+    constructor(address _dataFeed, address _mailbox, address _igp, address _iqsRouter, uint32 _sourceChainSelector) {
         mailbox = _mailbox;
         igp = _igp;
         iqsRouter = _iqsRouter;
         dataFeed = AggregatorV3Interface(
             _dataFeed
         );
+        sourceChainSelector = _sourceChainSelector;
     }
 
     error InsufficientFunds();
@@ -145,14 +148,15 @@ contract GasTransfer is IMessageRecipient {
     }
 
     function getLatestData() public view returns (uint) {
-        (
-            /* uint80 roundID */,
-            int answer,
-            /*uint startedAt*/,
-            /*uint timeStamp*/,
-            /*uint80 answeredInRound*/
-        ) = dataFeed.latestRoundData();
-        return uint(answer);
+        // (
+        //     /* uint80 roundID */,
+        //     int answer,
+        //     /*uint startedAt*/,
+        //     /*uint timeStamp*/,
+        //     /*uint80 answeredInRound*/
+        // ) = dataFeed.latestRoundData();
+        // return uint(answer);
+        return 38031900;
     }
 
     function getTotalRewards(address user) public view returns(uint) {
@@ -163,6 +167,16 @@ contract GasTransfer is IMessageRecipient {
 
         uint rewards = (myStakes * totalRewards) / totalStaked;
         return rewards;
+    }
+    
+    // alignment preserving cast
+    function addressToBytes32(address _addr) public pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
+    }
+
+    // alignment preserving cast
+    function bytes32ToAddress(bytes32 _buf) public pure returns (address) {
+        return address(uint160(uint256(_buf)));
     }
 
     function claimRewards() external {
@@ -237,7 +251,7 @@ contract GasTransfer is IMessageRecipient {
         totalRewards = totalRewards + (bridgeAmount - nativeTokenAmount);
 
         uint nativeTokenUsdAmount = (nativeTokenAmount * getLatestData()) / 10e8;
-        bytes memory message = abi.encode(nativeTokenUsdAmount, msg.sender);
+        bytes memory message = abi.encode(nativeTokenUsdAmount, msg.sender, block.timestamp);
         _sendMessage(destinationChainSelector, quote, receiver, message);
     }
 
@@ -302,8 +316,8 @@ contract GasTransfer is IMessageRecipient {
             revert InsufficientFunds();
         }
         destChainNativeTokenUsdAmount = destNativeTokenUsdAmount;
-        // bytes memory message = abi.encode(nativeTokenUsdAmount, sender);
-        // _sendMessage(destinationChainSelector, quote, receiver, message);
+        bytes memory message = abi.encode(nativeTokenUsdAmount, sender);
+        _sendMessage(destinationChainSelector, quote, receiver, message);
     }
 
     function handle(
@@ -317,7 +331,7 @@ contract GasTransfer is IMessageRecipient {
         address msgSender = bytes32ToAddress(_sender);
         address origin;
 
-        (nativeTokenUsdAmount, origin) = abi.decode(_body,(uint, address));
+        (nativeTokenUsdAmount, origin, ) = abi.decode(_body,(uint, address, uint));
         nativeTokenAmount = (nativeTokenUsdAmount / getLatestData()) * 10e8;
         _unlockToken(nativeTokenAmount, payable(origin));
 
@@ -356,6 +370,7 @@ contract GasTransfer is IMessageRecipient {
         emit Sent(
             messageId,
             domain,
+            sourceChainSelector,
             receiver,
             quote,
             _message
@@ -365,15 +380,5 @@ contract GasTransfer is IMessageRecipient {
     function _unlockToken(uint nativeTokenAmount, address payable msgSender) private {
         if(address(this).balance < nativeTokenAmount) revert InsufficientFunds();
         msgSender.transfer(nativeTokenAmount);
-    }
-
-    // alignment preserving cast
-    function addressToBytes32(address _addr) internal pure returns (bytes32) {
-        return bytes32(uint256(uint160(_addr)));
-    }
-
-    // alignment preserving cast
-    function bytes32ToAddress(bytes32 _buf) internal pure returns (address) {
-        return address(uint160(uint256(_buf)));
     }
 }

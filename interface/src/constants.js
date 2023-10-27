@@ -1,4 +1,4 @@
-export const supportedChains = [420, 43113, 80001, 534351, 5001]
+export const supportedChains = [420, 43113, 80001]
 export const supportedBridgeChains = [420, 43113, 80001]
 export const supportBridgeTokens = ["USDC", "USDT", "DAI", "BITCOIN", "LINK"]
 
@@ -79,7 +79,7 @@ export const chainsDetails = {
     },
     80001: {
         name: "Polygon",
-        image: "https://polygonscan.com/images/svg/brands/matic.svg",
+        image: "https://polygonscan.com/assets/poly/images/svg/logos/polygon-chain.svg?v=23.10.4.0",
         currency: "MATIC",
         contract: "0xcbE94e7De1868564D8cE55e07b3Daa886e7Bd5cF",
         destDomainIdentifier: 80001,

@@ -104,7 +104,6 @@ function TransferDetailsFlap({toChain, chain}) {
         if(inputAmount > 0) {
             const _provider = new ethers.JsonRpcProvider(chainsDetails[toChain].rpc);
             let contractBalance = ethers.formatEther(await _provider.getBalance(chainsDetails[toChain].contract));
-            
             if(contractBalance >= receiveAmount) {
                 try {
                     const gasContract = new ethers.Contract(chainsDetails[chain.id].contract, gasABI, provider);
