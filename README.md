@@ -1,6 +1,5 @@
 # HyperFuel
 
-## Demo Video
 
 Refil Txn: https://explorer.hyperlane.xyz/message/0x44dee49b81984e550bddc09d7823d15fe4c03aeaa451111117d7f55535a650a2
 
