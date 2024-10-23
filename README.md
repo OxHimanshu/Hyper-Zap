@@ -1,7 +1,6 @@
 # HyperFuel
 
 ## Demo Video
-https://www.loom.com/share/f7dc0c48d430478cb3f73fdf1f228b0f?sid=1a440f8e-55c7-47ca-96e6-236c4050e7ab
 
 Refil Txn: https://explorer.hyperlane.xyz/message/0x44dee49b81984e550bddc09d7823d15fe4c03aeaa451111117d7f55535a650a2
 
